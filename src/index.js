@@ -4,6 +4,9 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
+// Default setup done to load the App component
+// as the root of the application
+// by npx create-react-app command
 ReactDOM.render(
   <React.StrictMode>
     <App />

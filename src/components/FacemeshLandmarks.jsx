@@ -17,43 +17,55 @@ const webcamStyle = {
 };
 
 function FacemeshLandmarks(props) {
+  // Access all the properties from parent (App) component.
   const { load, showFaceMesh, selfieMode, eyeColorSwap } = props;
 
+  // Set reference variables
+  // It's similar to document.getElementById() method used in Vanilla JS)
   const loadingRef = useRef(true);
   const webcamRef = useRef(null);
   const canvasRef = useRef(null);
 
+  // Set states of the components (states are similar to variables)
   const [leftEyeColor, setLeftEyeColor] = useState("#30FF30");
   const [rightEyeColor, setRightEyeColor] = useState("#FF3030");
 
+  // Local variables
   let camera = null;
   const connect = window.drawConnectors;
   const utils = window.drawingUtils;
 
+  // Load facemesh at the first instance
+  // This useEffect loads the loadFaceMeshLandmarks() only at the first instance when this component gets called from parent since there's no dependencies are set.
   useEffect(() => {
     loadFaceMeshLandmarks();
   }, []);
 
+  // Trigger load property (obtained from parent (App)) when loadingRef object
   useEffect(() => {
     load(loadingRef.current);
   }, [loadingRef.current]);
 
-  useEffect(() => {
-    // loadFaceMeshLandmarks();
-  }, [selfieMode]);
+  // Test useEffects (please ignore)
+  // useEffect(() => {
+  //   // loadFaceMeshLandmarks();
+  // }, [selfieMode]);
 
-  useEffect(() => {
-    setLeftEyeColor(rightEyeColor);
-    setRightEyeColor(leftEyeColor);
-  }, [eyeColorSwap]);
+  // useEffect(() => {
+  //   setLeftEyeColor(rightEyeColor);
+  //   setRightEyeColor(leftEyeColor);
+  // }, [eyeColorSwap]);
 
+  // Main function
   const loadFaceMeshLandmarks = () => {
+    // Initialise faceMesh class with an object and load the input bytes read from camera as file
     const faceMeshObject = new FaceMesh({
       locateFile: (file) => {
         return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
       },
     });
 
+    // Set facemesh options
     faceMeshObject.setOptions({
       maxNumFaces: 1,
       minDetectionConfidence: 0.5,
@@ -61,7 +73,9 @@ function FacemeshLandmarks(props) {
       selfieMode: selfieMode,
     });
 
+    // show stuff on the face when gets result
     faceMeshObject.onResults(onResults);
+
     try {
       if (
         typeof webcamRef.current !== undefined &&
@@ -83,14 +97,16 @@ function FacemeshLandmarks(props) {
   };
 
   const onResults = (results) => {
-    // console.log(results);
+    // set camera picture ratio
     canvasRef.current.width = webcamRef.current.video.videoWidth;
     canvasRef.current.height = webcamRef.current.video.videoHeight;
 
+    // Init canvas
     const canvasElement = canvasRef.current;
     const canvasCtx = canvasElement.getContext("2d");
     canvasCtx.save();
 
+    // Set canvas
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
     canvasCtx.drawImage(
       results.image,
@@ -99,12 +115,16 @@ function FacemeshLandmarks(props) {
       canvasElement.width,
       canvasElement.height
     );
+    // log results on browser console to verify the results
     console.log(results);
+
+    // Obtain the landmarks from the result's multiFaceLandmarks property and pass it to the backend function
     if (results.multiFaceLandmarks) {
       for (const landmarks of results.multiFaceLandmarks) {
+        // get read landmarks and pass to the backend function
         bacKEndCall(landmarks);
 
-        // TODO: Draw rectangle on face
+        // Draw rectangle on face
         // utils.drawRectangle(canvasCtx, landmarks.boundingBox, {
         //   color: "blue",
         //   lineWidth: 4,
@@ -115,7 +135,7 @@ function FacemeshLandmarks(props) {
         //   radius: 5,
         // });
 
-        // TODO: plot landmark dlibs on face
+        // plot landmark dlibs on face
         // connect(canvasCtx, landmarks, facemesh.FACEMESH_TESSELATION, {
         //   color: "#C0C0C070",
         //   lineWidth: 1,
@@ -149,10 +169,13 @@ function FacemeshLandmarks(props) {
     // canvasCtx.restore();
   };
 
+  // This is the temp back end function to verify the required parameters are received
   const bacKEndCall = (landmarks) => {
+    // log the landmark (array) on browser console.
     console.log(landmarks);
   };
 
+  // Render the vision camera on the browser window
   return (
     <div className="App">
       <Webcam ref={webcamRef} style={{ webcamStyle }} hidden />
