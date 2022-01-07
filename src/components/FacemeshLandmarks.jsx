@@ -81,9 +81,9 @@ function FacemeshLandmarks(props) {
         typeof webcamRef.current !== undefined &&
         webcamRef.current !== null
       ) {
-        camera = new cam.Camera(webcamRef.current.video, {
+        camera = new cam.Camera(webcamRef.current?.video, {
           onFrame: async () => {
-            await faceMeshObject.send({ image: webcamRef.current.video });
+            await faceMeshObject.send({ image: webcamRef.current?.video });
           },
           width: 640,
           height: 480,
@@ -115,8 +115,9 @@ function FacemeshLandmarks(props) {
       canvasElement.width,
       canvasElement.height
     );
-    // log results on browser console to verify the results
-    console.log(results);
+
+    // Log results on browser console to verify the results
+    // console.log(results);
 
     // Obtain the landmarks from the result's multiFaceLandmarks property and pass it to the backend function
     if (results.multiFaceLandmarks) {
@@ -172,7 +173,7 @@ function FacemeshLandmarks(props) {
   // This is the temp back end function to verify the required parameters are received
   const bacKEndCall = (landmarks) => {
     // log the landmark (array) on browser console.
-    console.log(landmarks);
+    // console.log(landmarks);
   };
 
   // Render the vision camera on the browser window
